@@ -1,5 +1,6 @@
 import { AST_NODE_TYPES } from '@typescript-eslint/types'
 import { TSESTree } from '@typescript-eslint/utils'
+import { ReportDescriptor, RuleContext } from '@typescript-eslint/utils/dist/ts-eslint'
 
 import { ArrayUtils } from '../utils/array'
 import { ComparerUtils } from '../utils/comparer'
@@ -9,10 +10,79 @@ import { FixUtils } from '../utils/fix'
 
 type Options = []
 
+// Define the message ID for unsorted keys
 export const HAS_UNSORTED_KEYS_MESSAGE_ID = 'hasUnsortedKeys'
 
+// Define the type for the message IDs
 type MessageIds = typeof HAS_UNSORTED_KEYS_MESSAGE_ID
 
+// Function to get config from the parent node
+const getParentNodeConfig = (
+  node: TSESTree.Node,
+  parentTypes: AST_NODE_TYPES[],
+  deepCountingTypes: AST_NODE_TYPES[],
+  sourceCode: any,
+) => {
+  let currentNode: TSESTree.Node = node
+  let deepLevel = 1
+  while ((currentNode = currentNode.parent) !== null) {
+    if (deepCountingTypes.includes(currentNode.type)) {
+      deepLevel += 1
+    }
+    if (parentTypes.includes(currentNode.type)) {
+      const commentExpectedEndLine = currentNode.loc.start.line - 1
+      const config = ConfigUtils.getConfig(sourceCode, '@sort-keys', commentExpectedEndLine)
+      if (config.deepLevel < deepLevel) {
+        return null
+      }
+
+      return { config, deepLevel }
+    }
+  }
+  return null
+}
+
+// Function to get config from the current node
+const getCurrentNodeConfig = (node: TSESTree.Node, sourceCode: any) => {
+  const commentExpectedEndLine = node.loc.start.line - 1
+  const config = ConfigUtils.getConfig(sourceCode, '@sort-keys', commentExpectedEndLine)
+  return { config }
+}
+
+// Check if the properties of a node need sorting and report if necessary.
+const checkAndReport = <N extends TSESTree.Node>(
+  node: N,
+  comparer: (a: TSESTree.Node, b: TSESTree.Node) => number,
+  getProperties: (node: N) => TSESTree.Node[],
+  sourceCode: any,
+  report: (descriptor: ReportDescriptor<'hasUnsortedKeys'>) => void,
+) => {
+  const properties = getProperties(node)
+  const sortedProperties = [...properties].sort(comparer)
+
+  const needSort = ArrayUtils.zip2(properties, sortedProperties).some(
+    ([property, sortedProperty]) => property !== sortedProperty,
+  )
+
+  if (needSort) {
+    const diffRanges = ArrayUtils.zip2(properties, sortedProperties).map(([from, to]) => ({
+      from: from.range,
+      to: to.range,
+    }))
+
+    const fixedText = FixUtils.getFixedText(sourceCode, node.range, diffRanges)
+
+    report({
+      node,
+      messageId: HAS_UNSORTED_KEYS_MESSAGE_ID,
+      fix(fixer) {
+        return fixer.replaceTextRange(node.range, fixedText)
+      },
+    })
+  }
+}
+
+// Create the rule for sorting keys based on the @sort-keys annotation
 export default createRule<Options, MessageIds>({
   name: 'sort-keys-annotation',
   meta: {
@@ -32,210 +102,72 @@ export default createRule<Options, MessageIds>({
   create(context) {
     const sourceCode = context.getSourceCode()
 
-    const findParentReclusive = (
-      node: TSESTree.Node,
-      parentTypes: AST_NODE_TYPES[],
-      deepCountingTypes: AST_NODE_TYPES[],
-    ) => {
-      let currentNode: TSESTree.Node = node
-      let deepLevel = 1
-      while ((currentNode = currentNode.parent) !== null) {
-        if (deepCountingTypes.includes(currentNode.type)) {
-          deepLevel += 1
-        }
-        if (parentTypes.includes(currentNode.type)) {
-          return { node: currentNode, deepLevel }
-        }
-      }
-      return null
-    }
-
     return {
+      // Handle object expressions (e.g., object literals)
       ObjectExpression(node): void {
-        const result = findParentReclusive(
+        const result = getParentNodeConfig(
           node,
           [AST_NODE_TYPES.VariableDeclaration, AST_NODE_TYPES.TSTypeAliasDeclaration],
           [AST_NODE_TYPES.ObjectExpression],
+          sourceCode,
         )
-        if (!result) {
-          return
-        }
-        const { node: parentNode, deepLevel: currentDeepLevel } = result
-
-        const commentExpectedEndLine = parentNode.loc.start.line - 1
-        const config = ConfigUtils.getConfig(sourceCode, '@sort-keys', commentExpectedEndLine)
-        if (!config) {
+        if (!result || !result.config) {
           return
         }
 
-        const { isReversed, deepLevel } = config
-        if (deepLevel < currentDeepLevel) {
-          return
-        }
-
+        const { config, deepLevel } = result
+        const { isReversed } = config
         const comparer = ComparerUtils.makeObjectPropertyComparer({ isReversed })
 
-        const properties = node.properties
-        const sortedProperties = [...properties].sort(comparer)
-
-        const needSort = ArrayUtils.zip2(properties, sortedProperties).some(
-          ([property, sortedProperty]) => property !== sortedProperty,
-        )
-
-        if (needSort) {
-          const diffRanges = ArrayUtils.zip2(node.properties, sortedProperties).map(([from, to]) => ({
-            from: from.range,
-            to: to.range,
-          }))
-
-          const fixedText = FixUtils.getFixedText(sourceCode, node.range, diffRanges)
-
-          context.report({
-            node,
-            messageId: HAS_UNSORTED_KEYS_MESSAGE_ID,
-            fix(fixer) {
-              return fixer.replaceTextRange(node.range, fixedText)
-            },
-          })
-        }
+        checkAndReport(node, comparer, (node) => node.properties, sourceCode, context.report)
       },
+      // Handle TypeScript interface bodies
       TSInterfaceBody(node): void {
-        const result = findParentReclusive(
+        const result = getParentNodeConfig(
           node,
           [AST_NODE_TYPES.TSInterfaceDeclaration],
           [AST_NODE_TYPES.TSInterfaceBody],
+          sourceCode,
         )
-        if (!result) {
-          return
-        }
-        const { node: parentNode, deepLevel: currentDeepLevel } = result
-
-        const commentExpectedEndLine = parentNode.loc.start.line - 1
-        const config = ConfigUtils.getConfig(sourceCode, '@sort-keys', commentExpectedEndLine)
-        if (!config) {
+        if (!result || !result.config) {
           return
         }
 
-        const { isReversed, deepLevel } = config
-        if (deepLevel < currentDeepLevel) {
-          return
-        }
-
+        const { config, deepLevel } = result
+        const { isReversed } = config
         const comparer = ComparerUtils.makeInterfacePropertyComparer({ isReversed })
 
-        const properties = node.body
-        const sortedProperties = [...properties].sort(comparer)
-
-        const needSort = ArrayUtils.zip2(properties, sortedProperties).some(
-          ([property, sortedProperty]) => property !== sortedProperty,
-        )
-
-        if (needSort) {
-          const diffRanges = ArrayUtils.zip2(properties, sortedProperties).map(([from, to]) => ({
-            from: from.range,
-            to: to.range,
-          }))
-
-          const fixedText = FixUtils.getFixedText(sourceCode, node.range, diffRanges)
-
-          context.report({
-            node,
-            messageId: 'hasUnsortedKeys',
-            fix(fixer) {
-              return fixer.replaceTextRange(node.range, fixedText)
-            },
-          })
-        }
+        checkAndReport(node, comparer, (node) => node.body, sourceCode, context.report)
       },
+      // Handle TypeScript type literals
       TSTypeLiteral(node): void {
-        const result = findParentReclusive(
+        const result = getParentNodeConfig(
           node,
           [AST_NODE_TYPES.TSInterfaceDeclaration, AST_NODE_TYPES.TSTypeAliasDeclaration],
           [AST_NODE_TYPES.TSInterfaceBody, AST_NODE_TYPES.TSTypeLiteral],
+          sourceCode,
         )
-        if (!result) {
-          return
-        }
-        const { node: parentNode, deepLevel: currentDeepLevel } = result
-
-        const commentExpectedEndLine = parentNode.loc.start.line - 1
-        const config = ConfigUtils.getConfig(sourceCode, '@sort-keys', commentExpectedEndLine)
-        if (!config) {
+        if (!result || !result.config) {
           return
         }
 
-        const { isReversed, deepLevel } = config
-        if (deepLevel < currentDeepLevel) {
-          return
-        }
-
+        const { config, deepLevel } = result
+        const { isReversed } = config
         const comparer = ComparerUtils.makeInterfacePropertyComparer({ isReversed })
 
-        const properties = node.members
-        const sortedProperties = [...properties].sort(comparer)
-
-        const needSort = ArrayUtils.zip2(properties, sortedProperties).some(
-          ([property, sortedProperty]) => property !== sortedProperty,
-        )
-
-        if (needSort) {
-          const diffRanges = ArrayUtils.zip2(properties, sortedProperties).map(([from, to]) => ({
-            from: from.range,
-            to: to.range,
-          }))
-
-          const fixedText = FixUtils.getFixedText(sourceCode, node.range, diffRanges)
-
-          context.report({
-            node,
-            messageId: HAS_UNSORTED_KEYS_MESSAGE_ID,
-            fix(fixer) {
-              return fixer.replaceTextRange(node.range, fixedText)
-            },
-          })
-        }
+        checkAndReport(node, comparer, (node) => node.members, sourceCode, context.report)
       },
+      // Handle TypeScript enum declarations
       TSEnumDeclaration(node): void {
-        // Determine the line before the enum declaration to find potential configuration comments
-        const commentExpectedEndLine = node.loc.start.line - 1
-
-        // Extract the sorting configuration from the comments
-        const config = ConfigUtils.getConfig(sourceCode, '@sort-keys', commentExpectedEndLine)
+        const { config } = getCurrentNodeConfig(node, sourceCode)
         if (!config) {
-          return // No configuration found, skip sorting
+          return
         }
 
         const { isReversed } = config
-
-        // Assuming a similar comparer can be used or create a specific one for enums
         const comparer = ComparerUtils.makeEnumMemberComparer({ isReversed })
 
-        // Collect all enum members
-        const members = node.members
-        const sortedMembers = [...members].sort(comparer)
-
-        // Determine if there is a need to sort
-        const needSort = ArrayUtils.zip2(members, sortedMembers).some(
-          ([member, sortedMember]) => member !== sortedMember,
-        )
-
-        if (needSort) {
-          const diffRanges = ArrayUtils.zip2(members, sortedMembers).map(([from, to]) => ({
-            from: from.range,
-            to: to.range,
-          }))
-
-          const fixedText = FixUtils.getFixedText(sourceCode, node.range, diffRanges)
-
-          // Report the issue and provide a fix
-          context.report({
-            node,
-            messageId: HAS_UNSORTED_KEYS_MESSAGE_ID,
-            fix(fixer) {
-              return fixer.replaceTextRange(node.range, fixedText)
-            },
-          })
-        }
+        checkAndReport(node, comparer, (node) => node.members, sourceCode, context.report)
       },
     }
   },
