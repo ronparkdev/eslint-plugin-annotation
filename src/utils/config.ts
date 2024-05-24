@@ -1,7 +1,15 @@
 import { AST_TOKEN_TYPES } from '@typescript-eslint/utils'
 import { SourceCode } from '@typescript-eslint/utils/dist/ts-eslint'
 
+/**
+ * Extracts the configuration from a comment matching the specified annotation.
+ * @param sourceCode The source code object.
+ * @param annotationName The name of the annotation to look for.
+ * @param commentEndLine The line number where the comment ends.
+ * @return The extracted configuration or null if not found.
+ */
 const getConfig = (sourceCode: SourceCode, annotationName: string, commentEndLine: number) => {
+  // Find the matching comment
   const matchedComment = sourceCode
     .getAllComments()
     .filter((comment) => [AST_TOKEN_TYPES.Line, AST_TOKEN_TYPES.Block].includes(comment.type))
@@ -11,40 +19,46 @@ const getConfig = (sourceCode: SourceCode, annotationName: string, commentEndLin
     return null
   }
 
+  // Extract the line containing the annotation
   const matchedCommentLineString = matchedComment.value
     .split('\n')
     .map((lineString) => lineString.trim())
-    .find((lineString) => lineString.split(' ').find((str) => str.startsWith(annotationName)))
+    .find((lineString) => lineString.split(' ').some((str) => str.startsWith(annotationName)))
 
   if (!matchedCommentLineString) {
     return null
   }
 
+  // Extract options and values from the annotation
   const options = matchedCommentLineString.split(':')
-
   const isReversed = options.includes('reversed')
-  const deepLevel = (() => {
-    const matchedExecResult = options
-      .map((option) => /deep(\((\d+)\))?/.exec(option))
-      .find((execResult) => !!execResult)
-
-    if (!matchedExecResult) {
-      return 1 // deep option is not matched
-    }
-
-    const level = parseInt(matchedExecResult[2], 10)
-
-    if (isNaN(level)) {
-      return Number.MAX_SAFE_INTEGER // infinity deep sorting
-    }
-
-    return level
-  })()
+  const deepLevel = extractDeepLevel(options)
 
   return {
     isReversed,
     deepLevel,
   }
+}
+
+/**
+ * Extracts the deep level from the options.
+ * @param options The options array.
+ * @return The extracted deep level or 1 if not specified.
+ */
+const extractDeepLevel = (options: string[]) => {
+  const matchedExecResult = options.map((option) => /deep(\((\d+)\))?/.exec(option)).find((execResult) => !!execResult)
+
+  if (!matchedExecResult) {
+    return 1 // deep option is not matched
+  }
+
+  const level = parseInt(matchedExecResult[2], 10)
+
+  if (isNaN(level)) {
+    return Number.MAX_SAFE_INTEGER // infinity deep sorting
+  }
+
+  return level
 }
 
 export const ConfigUtils = {
