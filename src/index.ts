@@ -1,5 +1,5 @@
-import sort from './rules/sort-annotation'
-import sortKeys from './rules/sort-keys-annotation'
+import sort from './rules/sort'
+import sortKeys from './rules/sort-keys'
 
 // Import all rules in lib/rules
 module.exports.rules = {

@@ -4,7 +4,7 @@ import { AST_NODE_TYPES, ESLintUtils } from '@typescript-eslint/utils'
 
 const { RuleTester } = ESLintUtils
 
-import rule, { HAS_UNSORTED_KEYS_MESSAGE_ID } from '../src/rules/sort-annotation'
+import rule, { HAS_UNSORTED_KEYS_MESSAGE_ID } from '../src/rules/sort'
 
 const getFilename = (filePath: string): string => path.resolve('./tests', filePath)
 
@@ -18,7 +18,7 @@ const ruleTester = new RuleTester({
   },
 })
 
-ruleTester.run('sort-annotation', rule, {
+ruleTester.run('sort', rule, {
   valid: [
     {
       code: `

@@ -11,7 +11,7 @@ export const HAS_UNSORTED_KEYS_MESSAGE_ID = 'hasUnsortedKeys'
 type MessageIds = typeof HAS_UNSORTED_KEYS_MESSAGE_ID
 
 export default createRule<Options, MessageIds>({
-  name: 'sort-annotation',
+  name: 'annotation',
   meta: {
     docs: {
       description: 'Sort array if annotated as @sort',

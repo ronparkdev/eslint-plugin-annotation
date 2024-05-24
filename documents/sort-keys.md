@@ -1,4 +1,4 @@
-# eslint-plugin-sort-annotation/sort-keys
+# eslint-plugin-annotation/sort-keys
 Sort interface properties or object keys if has `@sort-keys` annotation
 
 ## Annotation options

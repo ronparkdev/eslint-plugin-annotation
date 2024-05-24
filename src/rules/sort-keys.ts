@@ -84,7 +84,7 @@ const checkAndReport = <N extends TSESTree.Node>(
 
 // Create the rule for sorting keys based on the @sort-keys annotation
 export default createRule<Options, MessageIds>({
-  name: 'sort-keys-annotation',
+  name: 'sort-keys',
   meta: {
     docs: {
       description: 'Sort keys in object if annotated as @sort-keys',

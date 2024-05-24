@@ -8,7 +8,7 @@ const createRule_1 = require("../utils/createRule");
 const fix_1 = require("../utils/fix");
 exports.HAS_UNSORTED_KEYS_MESSAGE_ID = 'hasUnsortedKeys';
 exports.default = (0, createRule_1.createRule)({
-    name: 'sort-annotation',
+    name: 'annotation',
     meta: {
         docs: {
             description: 'Sort array if annotated as @sort',

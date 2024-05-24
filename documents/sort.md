@@ -1,4 +1,4 @@
-# eslint-plugin-sort-annotation/sort
+# eslint-plugin-annotation/sort
 Sort array values if has `@sort` annotation
 
 ### Before apply annotation

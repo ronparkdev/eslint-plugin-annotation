@@ -1,7 +1,7 @@
 {
-  "name": "eslint-plugin-sort-annotation",
+  "name": "eslint-plugin-annotation",
   "version": "1.0.7",
-  "description": "Lint rule to autofix unsorted object's keys or array",
+  "description": "Lint rules to validate and auto-correct annotation-based policies",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ronparkdev/eslint-plugin-sort-annotation.git"
+    "url": "git+https://github.com/ronparkdev/eslint-plugin-annotation.git"
   },
   "keywords": [
     "eslint",
@@ -27,10 +27,10 @@
   "author": "Sang Min Park (ronparkdev)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ronparkdev/eslint-plugin-sort-annotation/issues",
+    "url": "https://github.com/ronparkdev/eslint-plugin-annotation/issues",
     "email": "ronpark.dev@gmail.com"
   },
-  "homepage": "https://github.com/ronparkdev/eslint-plugin-sort-annotation#readme",
+  "homepage": "https://github.com/ronparkdev/eslint-plugin-annotation#readme",
   "devDependencies": {
     "@types/eslint": "^8.21.3",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
