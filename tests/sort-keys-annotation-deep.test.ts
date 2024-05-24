@@ -158,14 +158,8 @@ ruleTester.run('sort-keys-annotation', rule, {
       const object = {
         A1: {
           A2: {
-            A3: {
-              A4: {
-                A5: {
-                  b: string,
-                  a: string,
-                },
-              },
-            },
+            b: string,
+            a: string,
           },
         },
       }
@@ -176,14 +170,8 @@ ruleTester.run('sort-keys-annotation', rule, {
       const object = {
         A1: {
           A2: {
-            A3: {
-              A4: {
-                A5: {
-                  a: string,
-                  b: string,
-                },
-              },
-            },
+            a: string,
+            b: string,
           },
         },
       }
@@ -246,14 +234,8 @@ ruleTester.run('sort-keys-annotation', rule, {
       interface DeepMockInterface {
         A1: {
           A2: {
-            A3: {
-              A4: {
-                A5: {
-                  b: string,
-                  a: string,
-                }
-              }
-            }
+            b: string,
+            a: string,
           }
         }
       }
@@ -264,14 +246,8 @@ ruleTester.run('sort-keys-annotation', rule, {
       interface DeepMockInterface {
         A1: {
           A2: {
-            A3: {
-              A4: {
-                A5: {
-                  a: string,
-                  b: string,
-                }
-              }
-            }
+            a: string,
+            b: string,
           }
         }
       }
