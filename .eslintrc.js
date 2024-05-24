@@ -12,6 +12,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'import'],
   rules: {
     'require-jsdoc': 'off',
+    'valid-jsdoc': 'off',
 
     // import
     'import/order': [
