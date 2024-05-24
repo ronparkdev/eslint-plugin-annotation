@@ -31,13 +31,31 @@ const getConfig = (sourceCode: SourceCode, annotationName: string, commentEndLin
 
   // Extract options and values from the annotation
   const options = matchedCommentLineString.split(':')
+  const value = extractValue(matchedCommentLineString)
   const isReversed = options.includes('reversed')
   const deepLevel = extractDeepLevel(options)
 
   return {
+    value,
     isReversed,
     deepLevel,
   }
+}
+
+/**
+ * Extracts the value from the annotation string.
+ * @param annotationString The annotation string.
+ * @return The extracted value or null if not found.
+ */
+const extractValue = (annotationString: string) => {
+  const startOffset = annotationString.indexOf('(')
+  const endOffset = annotationString.indexOf(')', startOffset)
+
+  if (startOffset === -1 || endOffset === -1) {
+    return null
+  }
+
+  return annotationString.slice(startOffset + 1, endOffset)
 }
 
 /**
