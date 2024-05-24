@@ -28,6 +28,7 @@ Here’s a suggested ESLint configuration that:
   "rules": {
     ...
     // Add below rules next to old rules 
+    'annotation/format-date': 'error',
     'annotation/sort-keys': 'error',
     'annotation/sort': 'error',
   }
@@ -35,9 +36,15 @@ Here’s a suggested ESLint configuration that:
 ```
 
 # Supported Rules
-* [`sort-keys`](https://github.com/ronparkdev/eslint-plugin-annotation/blob/master/documents/sort-keys.md) : Sort interface properties or object keys if has `@sort-keys` annotation
+다음은 `@format-date`, `@sort-keys`, `@sort` 어노테이션을 표로 정리한 것입니다. `@sort-keys`와 `@sort`는 자동 수정을 지원하고, `@format-date`는 자동 수정을 지원하지 않음을 아이콘으로 표시했습니다.
 
-* [`sort`](https://github.com/ronparkdev/eslint-plugin-annotation/blob/master/documents/sort.md) : Sort array values if has `@sort` annotation
+# eslint-plugin-annotation
+
+| Rule | Description | Autofix |
+|---|---|---|
+| [`format-date`](https://github.com/ronparkdev/eslint-plugin-annotation/blob/master/documents/format-date.md) | Ensure dates in strings match the specified `@format-date` annotation | ❌ |
+| [`sort-keys`](https://github.com/ronparkdev/eslint-plugin-annotation/blob/master/documents/sort-keys.md) | Sort interface properties or object keys if has `@sort-keys` annotation | ✔️ |
+| [`sort`](https://github.com/ronparkdev/eslint-plugin-annotation/blob/master/documents/sort.md) | Sort array values if has `@sort` annotation | ✔️ |
 
 # License
 BSD License
