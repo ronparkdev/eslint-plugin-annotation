@@ -1,5 +1,3 @@
-알겠습니다. 오토픽스 기능을 포함하지 않도록 설정하고, lint 성공 및 실패 케이스로 나누어 문서를 작성하겠습니다.
-
 # eslint-plugin-annotation/format-date
 Ensure dates in strings match the specified `@format-date` annotation
 
