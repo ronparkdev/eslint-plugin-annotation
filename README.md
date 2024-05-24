@@ -36,10 +36,6 @@ Here’s a suggested ESLint configuration that:
 ```
 
 # Supported Rules
-다음은 `@format-date`, `@sort-keys`, `@sort` 어노테이션을 표로 정리한 것입니다. `@sort-keys`와 `@sort`는 자동 수정을 지원하고, `@format-date`는 자동 수정을 지원하지 않음을 아이콘으로 표시했습니다.
-
-# eslint-plugin-annotation
-
 | Rule | Description | Autofix |
 |---|---|---|
 | [`format-date`](https://github.com/ronparkdev/eslint-plugin-annotation/blob/master/documents/format-date.md) | Ensure dates in strings match the specified `@format-date` annotation | ❌ |
