@@ -4,6 +4,7 @@
   "description": "Lint rules to validate and auto-correct annotation-based policies",
   "main": "dist/index.js",
   "scripts": {
+    "publish": "npm run clean && npm run build && npm publish",
     "build": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
     "format": "prettier --write src/**/*.ts",
