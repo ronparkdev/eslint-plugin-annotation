@@ -8,7 +8,6 @@ Ensure dates in strings match the specified `@format-date` annotation
 * `@format-date(utcstring)` : Ensure the date format is UTC string (`EEE, dd MMM yyyy HH:mm:ss 'GMT'`)
 
 ### Lint Success Case
-#### Before applying annotation
 ```javascript
 // @format-date(YYYY-MM-DD)
 const date = "2023-05-24";
@@ -24,7 +23,6 @@ const utcString = "Wed, 14 Jun 2017 07:00:00 GMT";
 ```
 
 ### Lint Failure Case
-#### Before applying annotation
 ```javascript
 // @format-date(YYYY-MM-DD)
 const date = "05/24/2023";
