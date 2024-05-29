@@ -36,7 +36,9 @@ export default createRule<Options, MessageIds>({
         }
 
         const elements = node.elements
-        const uniqueElements = Array.from(new Set(elements.map((element) => sourceCode.getText(element))))
+        const uniqueElements = Array.from(
+          new Set(elements.map((element) => (element === null ? '' : sourceCode.getText(element)))),
+        )
 
         if (elements.length !== uniqueElements.length) {
           context.report({
