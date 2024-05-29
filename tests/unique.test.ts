@@ -34,6 +34,20 @@ ruleTester.run('unique', rule, {
       `,
       filename: getFilename('main.ts'),
     },
+    {
+      code: `
+      // @unique
+      const mixed = [1, "2", null, true, false];
+      `,
+      filename: getFilename('main.ts'),
+    },
+    {
+      code: `
+      // @unique
+      const sparseArray = [1, 2, , 3];
+      `,
+      filename: getFilename('main.ts'),
+    },
   ],
   invalid: [
     {
@@ -57,6 +71,18 @@ ruleTester.run('unique', rule, {
       output: `
       // @unique
       const names = ["Alice", "Bob"];
+      `,
+      filename: getFilename('main.ts'),
+    },
+    {
+      code: `
+      // @unique
+      const sparseArray = [1, 2, , 1];
+      `,
+      errors: [{ messageId: 'duplicateValues', type: AST_NODE_TYPES.ArrayExpression }],
+      output: `
+      // @unique
+      const sparseArray = [1, 2, ];
       `,
       filename: getFilename('main.ts'),
     },
