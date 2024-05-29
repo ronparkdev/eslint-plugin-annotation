@@ -31,6 +31,7 @@ Here’s a suggested ESLint configuration that:
     'annotation/format-date': 'error',
     'annotation/sort-keys': 'error',
     'annotation/sort': 'error',
+    'annotation/unique': 'error',
   }
 }
 ```
@@ -41,6 +42,7 @@ Here’s a suggested ESLint configuration that:
 | [`format-date`](https://github.com/ronparkdev/eslint-plugin-annotation/blob/master/documents/format-date.md) | Ensure dates in strings match the specified `@format-date` annotation | ❌ |
 | [`sort-keys`](https://github.com/ronparkdev/eslint-plugin-annotation/blob/master/documents/sort-keys.md) | Sort interface properties or object keys if has `@sort-keys` annotation | ✔️ |
 | [`sort`](https://github.com/ronparkdev/eslint-plugin-annotation/blob/master/documents/sort.md) | Sort array values if has `@sort` annotation | ✔️ |
+| [`unique`](https://github.com/ronparkdev/eslint-plugin-annotation/blob/master/documents/unique.md) | Ensure array values are unique if annotated with `@unique` | ✔️ |
 
 # License
 BSD License
