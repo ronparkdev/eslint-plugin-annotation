@@ -5,7 +5,6 @@
   "main": "dist/index.js",
   "scripts": {
     "prepublishOnly": "npm run clean && npm run build",
-    "publish": "npm publish --ignore-scripts",
     "build": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
     "format": "prettier --write src/**/*.ts",
