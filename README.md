@@ -31,6 +31,7 @@ Here’s a suggested ESLint configuration that:
     'annotation/format-date': 'error',
     'annotation/sort-keys': 'error',
     'annotation/sort': 'error',
+    'annotation/unique': 'error',
   }
 }
 ```
