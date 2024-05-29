@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-annotation",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "Lint rules to validate and auto-correct annotation-based policies",
   "main": "dist/index.js",
   "scripts": {
