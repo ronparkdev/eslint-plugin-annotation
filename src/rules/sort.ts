@@ -51,8 +51,8 @@ export default createRule<Options, MessageIds>({
 
         if (needSort) {
           const diffRanges = ArrayUtils.zip2(node.elements, sortedElements).map(([from, to]) => ({
-            from: from.range,
-            to: to.range,
+            from: from!.range,
+            to: to!.range,
           }))
 
           const fixedText = FixUtils.getFixedText(sourceCode, node.range, diffRanges)
