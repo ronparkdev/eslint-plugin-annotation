@@ -12,16 +12,16 @@ import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils'
 import { SourceCode } from '@typescript-eslint/utils/dist/ts-eslint'
 
 type Element = Expression | SpreadElement
-type LiteralType = string | number | bigint | boolean | RegExp
+type LiteralType = string | number | bigint | boolean | RegExp | null
 
 const AST_NODE_TYPE_ORDERS = [AST_NODE_TYPES.Literal, AST_NODE_TYPES.Identifier, AST_NODE_TYPES.MemberExpression]
-const LITERAL_TYPE_ORDERS = ['boolean', 'number', 'bigint', 'string']
+const LITERAL_TYPE_ORDERS = ['null', 'boolean', 'number', 'bigint', 'string']
 
 export const getAstNodeTypeOrder = (type: AST_NODE_TYPES) =>
   AST_NODE_TYPE_ORDERS.includes(type) ? AST_NODE_TYPE_ORDERS.indexOf(type) : AST_NODE_TYPE_ORDERS.length
 
 export const getLiteralTypeOrder = (
-  type: 'string' | 'number' | 'bigint' | 'boolean' | 'symbol' | 'undefined' | 'object' | 'function',
+  type: 'null' | 'string' | 'number' | 'bigint' | 'boolean' | 'symbol' | 'undefined' | 'object' | 'function',
 ) => (LITERAL_TYPE_ORDERS.includes(type) ? LITERAL_TYPE_ORDERS.indexOf(type) : LITERAL_TYPE_ORDERS.length)
 
 const compareProperty = <
@@ -35,8 +35,8 @@ const compareProperty = <
   r: T,
 ) => {
   if (l.key.type === AST_NODE_TYPES.Literal && r.key.type === AST_NODE_TYPES.Literal) {
-    const lKey = l.key.value
-    const rKey = r.key.value
+    const lKey = l.key.value ?? ''
+    const rKey = r.key.value ?? ''
     // Both string should compare in alphabetical order
     return lKey === rKey ? 0 : lKey < rKey ? -1 : 1
   } else if (l.key.type === AST_NODE_TYPES.Identifier && r.key.type === AST_NODE_TYPES.Identifier) {
@@ -135,7 +135,11 @@ const compareLiterals = (l: LiteralType, r: LiteralType): number => {
 const makeArrayValueComparer = ({ isReversed, sourceCode }: { isReversed: boolean; sourceCode: SourceCode }) => {
   const fullText = sourceCode.getText()
 
-  const comparer = (l: Element, r: Element) => {
+  const comparer = (l: SpreadElement | Expression | null, r: SpreadElement | Expression | null) => {
+    if (l === null || r === null) {
+      return 0
+    }
+
     if (l.type === AST_NODE_TYPES.Literal && r.type === AST_NODE_TYPES.Literal) {
       return compareLiterals(l.value, r.value)
     } else if (l.type === r.type) {
@@ -150,7 +154,9 @@ const makeArrayValueComparer = ({ isReversed, sourceCode }: { isReversed: boolea
     }
   }
 
-  return isReversed ? (l: Element, r: Element) => -comparer(l, r) : comparer
+  return isReversed
+    ? (l: SpreadElement | Expression | null, r: SpreadElement | Expression | null) => -comparer(l, r)
+    : comparer
 }
 
 const makeEnumMemberComparer = ({ isReversed }: { isReversed: boolean }) => {

@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES } from '@typescript-eslint/types'
 import { TSESTree } from '@typescript-eslint/utils'
-import { ReportDescriptor, RuleContext } from '@typescript-eslint/utils/dist/ts-eslint'
+import { ReportDescriptor } from '@typescript-eslint/utils/dist/ts-eslint'
 
 import { ArrayUtils } from '../utils/array'
 import { ComparerUtils } from '../utils/comparer'
@@ -23,15 +23,19 @@ const getParentNodeConfig = (
   deepCountingTypes: AST_NODE_TYPES[],
   sourceCode: any,
 ) => {
-  let currentNode: TSESTree.Node = node
+  let currentNode: TSESTree.Node | null = node
   let deepLevel = 1
-  while ((currentNode = currentNode.parent) !== null) {
+  while ((currentNode = currentNode?.parent ?? null) !== null) {
     if (deepCountingTypes.includes(currentNode.type)) {
       deepLevel += 1
     }
     if (parentTypes.includes(currentNode.type)) {
       const commentExpectedEndLine = currentNode.loc.start.line - 1
       const config = ConfigUtils.getConfig(sourceCode, '@sort-keys', commentExpectedEndLine)
+      if (config === null) {
+        return null
+      }
+
       if (config.deepLevel < deepLevel) {
         return null
       }
@@ -50,10 +54,10 @@ const getCurrentNodeConfig = (node: TSESTree.Node, sourceCode: any) => {
 }
 
 // Check if the properties of a node need sorting and report if necessary.
-const checkAndReport = <N extends TSESTree.Node>(
+const checkAndReport = <N extends TSESTree.Node, P extends TSESTree.Node>(
   node: N,
-  comparer: (a: TSESTree.Node, b: TSESTree.Node) => number,
-  getProperties: (node: N) => TSESTree.Node[],
+  comparer: (a: P, b: P) => number,
+  getProperties: (node: N) => P[],
   sourceCode: any,
   report: (descriptor: ReportDescriptor<'hasUnsortedKeys'>) => void,
 ) => {
@@ -115,7 +119,7 @@ export default createRule<Options, MessageIds>({
           return
         }
 
-        const { config, deepLevel } = result
+        const { config } = result
         const { isReversed } = config
         const comparer = ComparerUtils.makeObjectPropertyComparer({ isReversed })
 
