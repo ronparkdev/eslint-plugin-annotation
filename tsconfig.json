@@ -1,8 +1,11 @@
 {
   "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+    "declarationDir": "dist/types",
     "esModuleInterop": true,
-    "target": "ES2016",
-    "module": "commonjs",
+    "target": "ES6",
+    "module": "ESNext",
     "moduleResolution": "Node",
     "removeComments": true,
     "strict": true
